@@ -1,4 +1,4 @@
--module(config).
+-module(mod___config).
 
 -export([get_mode/0]).
 -export([get_roles/0]).

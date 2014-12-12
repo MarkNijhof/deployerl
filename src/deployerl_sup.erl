@@ -17,7 +17,7 @@ start_link() ->
 %% --------------------------------------------------%%
 
 init([]) ->
-    Procs = case config:get_mode() of
+    Procs = case mod___config:get_mode() of
                 server ->
                     get_processes_for_server_mode();
                 client ->
@@ -31,14 +31,23 @@ init([]) ->
 
 get_processes_for_server_mode() ->
     [
-     {worker___communicator_server,
-      {worker___communicator_server, start_link, []},
-      transient, brutal_kill, worker, [worker___communicator_server]}
+     {sup___server,
+      {sup___server, start_link, []},
+      transient, brutal_kill, supervisor, [sup___server]},
+
+     get_processes_for_deployer()
     ].
 
 get_processes_for_client_mode() ->
     [
-     {worker___communicator_client,
-      {worker___communicator_client, start_link, []},
-      transient, brutal_kill, worker, [worker___communicator_client]}
+     {sup___client,
+      {sup___client, start_link, []},
+      transient, brutal_kill, supervisor, [sup___client]},
+
+     get_processes_for_deployer()
     ].
+
+get_processes_for_deployer() ->
+    {sup___deployer,
+     {sup___deployer, start_link, []},
+     transient, brutal_kill, supervisor, [sup___deployer]}.

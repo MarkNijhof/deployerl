@@ -6,7 +6,6 @@
 
 start(_Type, _Args) ->
     setup_exometer(),
-%%    io:format(user, "ROLES: ~p~n", [config:get_roles()]),
     deployerl_sup:start_link().
 
 stop(_State) ->

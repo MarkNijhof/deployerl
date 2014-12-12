@@ -1,0 +1,3 @@
+:name "deployerl"
+:node-name "deployerl_emacs"
+:project-include-dirs '("src/", "src/*/", "deps/*/ebin/")
