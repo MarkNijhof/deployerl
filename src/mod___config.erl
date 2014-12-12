@@ -3,6 +3,7 @@
 -export([get_mode/0]).
 -export([get_roles/0]).
 -export([get_udp_port/0]).
+-export([get_manifest/0]).
 
 %% --------------------------------------------------%%
 %% API
@@ -17,6 +18,9 @@ get_roles() ->
 get_udp_port() ->
     get_config(udp_port, 9999, int).
 
+get_manifest() ->
+    get_config(manifest, [], term).
+
 
 %% --------------------------------------------------%%
 %% PRIVATE
@@ -25,6 +29,8 @@ get_udp_port() ->
 get_env_name(Key) ->
     "DEPLOYERL_" ++ string:to_upper(atom_to_list(Key)).
 
+get_config(Key, Default, term) ->
+    get_config(Key, Default);
 get_config(Key, Default, list) ->
     case os:getenv(get_env_name(Key)) of
         false ->

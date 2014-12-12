@@ -1,6 +1,8 @@
 -module(sup___deployer).
 -behaviour(supervisor).
 
+-define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+
 -export([start_link/0]).
 -export([init/1]).
 
@@ -26,7 +28,4 @@ init([]) ->
 
 get_processes() ->
     [
-     %% {worker___communicator_server,
-     %%  {worker___communicator_server, start_link, []},
-     %%  transient, brutal_kill, worker, [worker___communicator_server]}
     ].

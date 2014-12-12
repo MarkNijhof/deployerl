@@ -2,10 +2,11 @@ PROJECT = deployerl
 
 ERLC_OPTS = +debug_info +'{parse_transform,lager_transform}'
 
-DEPS = lager jiffy exometer
+DEPS = lager jiffy exometer hackney
 
 dep_jiffy    = git https://github.com/davisp/jiffy master
 dep_exometer = git https://github.com/MarkNijhof/exometer master
+dep_hackney  = git https://github.com/benoitc/hackney master
 
 include erlang.mk
 

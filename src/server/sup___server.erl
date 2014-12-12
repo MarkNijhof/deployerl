@@ -1,6 +1,8 @@
 -module(sup___server).
 -behaviour(supervisor).
 
+-define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+
 -export([start_link/0]).
 -export([init/1]).
 
@@ -26,11 +28,7 @@ init([]) ->
 
 get_processes() ->
     [
-     {wkr___connector_server,
-      {wkr___connector_server, start_link, []},
-      transient, brutal_kill, worker, [wkr___connector_server]},
-
-     {wkr___communicator_server,
-      {wkr___communicator_server, start_link, []},
-      transient, brutal_kill, worker, [wkr___communicator_server]}
+     ?CHILD(wkr___connector_server, worker),
+     ?CHILD(wkr___communicator_server, worker),
+     ?CHILD(wrk___manifest_loader, worker)
     ].

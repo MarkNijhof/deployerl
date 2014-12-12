@@ -1,17 +1,23 @@
-{application, deployerl, [
-	{description, "Deployerl for automated deployment of Erlang apps"},
-	{vsn, "1"},
-	{modules, []},
-	{registered, [sup___deployerl]},
-	{applications, [
-                        stdlib,
-                        kernel,
-                        lager,
-                        jiffy,
-                        setup,
-                        afunix,
-                        exometer
-                       ]},
-	{mod, {deployerl_app, []}},
-	{env, []}
-]}.
+{application, deployerl,
+ [
+  {description, "Deployerl for automated deployment of Erlang apps"},
+  {vsn, "1"},
+  {modules, []},
+  {registered, [sup___deployerl]},
+  {applications,
+   [
+    stdlib,
+    kernel,
+    lager,
+    jiffy,
+    setup,
+    afunix,
+    exometer,
+    crypto,
+    public_key,
+    ssl,
+    hackney
+   ]},
+  {mod, {deployerl_app, []}},
+  {env, []}
+ ]}.

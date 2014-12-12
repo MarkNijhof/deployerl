@@ -1,6 +1,8 @@
 -module(deployerl_sup).
 -behaviour(supervisor).
 
+-define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+
 -export([start_link/0]).
 -export([init/1]).
 
@@ -31,23 +33,15 @@ init([]) ->
 
 get_processes_for_server_mode() ->
     [
-     {sup___server,
-      {sup___server, start_link, []},
-      transient, brutal_kill, supervisor, [sup___server]},
-
+     ?CHILD(sup___server, supervisor),
      get_processes_for_deployer()
     ].
 
 get_processes_for_client_mode() ->
     [
-     {sup___client,
-      {sup___client, start_link, []},
-      transient, brutal_kill, supervisor, [sup___client]},
-
+     ?CHILD(sup___client, supervisor),
      get_processes_for_deployer()
     ].
 
 get_processes_for_deployer() ->
-    {sup___deployer,
-     {sup___deployer, start_link, []},
-     transient, brutal_kill, supervisor, [sup___deployer]}.
+    ?CHILD(sup___deployer, supervisor).
