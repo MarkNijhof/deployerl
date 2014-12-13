@@ -9,7 +9,8 @@
           method,
           type,
           url,
-          roles = []
+          roles = [],
+          ttl = 5000
          }).
 
 %% --------------------------------------------------%%
@@ -24,10 +25,10 @@ start_link() ->
 %% --------------------------------------------------%%
 
 init([]) ->
-    {ok, parse_config(#state{}), 5000}.
+    {ok, parse_config(#state{}), 10}.
 
-handle_info(timeout, State) ->
-    {noreply, load_manifest(State), 5000}.
+handle_info(timeout, State = #state{ttl = Ttl}) ->
+    {noreply, load_manifest(State), Ttl}.
 
 handle_call(not_implemented, _From, State) ->
     {reply, not_implemented, State}.
@@ -70,8 +71,9 @@ parse_manifest(Body, State)
   when is_binary(Body) ->
     parse_manifest(jiffy:decode(Body, [return_maps]), State);
 parse_manifest(Body, State) ->
+    Ttl = maps:get(<<"ttl">>, Body, 5000),
     Roles = maps:get(<<"roles">>, Body, []),
-    diff_roles(Roles, State).
+    diff_roles(Roles, State#state{ttl = Ttl}).
 
 diff_roles(Roles, State) ->
     io:format(user, "ROLES: ~p~n~n", [Roles]),
