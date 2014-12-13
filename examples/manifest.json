@@ -1,0 +1,54 @@
+{
+    "ttl" : 10000,
+    "roles" : [
+    {
+        "role" : "role_a",
+        "applications" : [{
+            "application" : "app_1",
+            "versions" : [{
+                "version" : "0.0.1",
+                "share" : 60,
+                "archive_url" : "https://gist.github.com/"
+            },{
+                "version" : "0.0.2",
+                "share" : 30,
+                "archive_url" : "https://gist.github.com/"
+            },{
+                "version" : "0.0.3",
+                "share" : 10,
+                "archive_url" : "https://gist.github.com/"
+            }]
+        }]
+    },{
+        "role" : "role_b",
+        "applications" : [{
+            "application" : "app_2",
+            "versions" : [{
+                "version" : "0.0.1",
+                "share" : 100,
+                "archive_url" : "https://gist.github.com/"
+            }]
+        }]
+    },{
+        "role" : "role_c",
+        "applications" : [{
+            "application" : "app_3",
+            "versions" : [{
+                "version" : "0.0.1",
+                "share" : 80,
+                "archive_url" : "https://gist.github.com/"
+            },{
+                "version" : "0.0.2",
+                "share" : 20,
+                "archive_url" : "https://gist.github.com/"
+            }]
+        },{
+            "application" : "app_4",
+            "versions" : [{
+                "version" : "0.0.1",
+                "share" : 100,
+                "archive_url" : "https://gist.github.com/"
+            }]
+        }]
+    }]
+}
