@@ -58,6 +58,7 @@ parse_config(State) ->
 load_manifest(State = #state{url = undefined}) ->
     lager:error("No manifest url provided in the config~n", []),
     State;
+
 load_manifest(State = #state{method = tcp, url = Url}) ->
     case hackney:request(get, Url, [], <<>>, []) of
         {ok, _StatusCode, _RespHeaders, ClientRef} ->
@@ -70,6 +71,7 @@ load_manifest(State = #state{method = tcp, url = Url}) ->
 parse_manifest(Body, State)
   when is_binary(Body) ->
     parse_manifest(jiffy:decode(Body, [return_maps]), State);
+
 parse_manifest(Body, State) ->
     Ttl = maps:get(<<"ttl">>, Body, 5000),
     Roles = maps:get(<<"roles">>, Body, []),

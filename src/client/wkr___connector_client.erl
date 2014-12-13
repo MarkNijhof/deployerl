@@ -9,7 +9,8 @@
 
 -record(state, {
           udp_port,
-          connected_to_server = false
+          connected_to_server = false,
+          roles
          }).
 
 %% --------------------------------------------------%%
@@ -30,7 +31,8 @@ disconnected_from_server() ->
 %% --------------------------------------------------%%
 
 init([]) ->
-    {ok, #state{udp_port = mod___config:get_udp_port()}, 5000}.
+    {ok, #state{udp_port = mod___config:get_udp_port(),
+                roles = mod___config:get_roles()}, 10}.
 
 handle_info(timeout, State = #state{connected_to_server = false}) ->
     {noreply, udp_broadcast(State), 5000};
@@ -58,13 +60,14 @@ terminate(_Reason, _State) ->
 %% --------------------------------------------------%%
 
 udp_broadcast(State = #state{connected_to_server = false,
-                             udp_port = UdpPort}) ->
+                             udp_port = UdpPort,
+                             roles = Roles}) ->
     lager:info("Deployerl is broadcasting to UDP port: ~p~n", [UdpPort]),
     {ok, SendSocket} = gen_udp:open(0, [binary, {broadcast, true}]),
     ok = gen_udp:send(SendSocket,
                       {255, 255, 255, 255},
                       UdpPort,
-                      term_to_binary({register_client, whereis(communicator), node()})),
+                      term_to_binary({register_client, whereis(communicator), node(), Roles})),
     ok = gen_udp:close(SendSocket),
     State;
 
