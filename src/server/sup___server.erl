@@ -29,6 +29,6 @@ init([]) ->
 get_processes() ->
     [
      ?CHILD(wkr___connector_server, worker),
-     ?CHILD(wkr___communicator_server, worker),
-     ?CHILD(wrk___manifest_loader, worker)
+     ?CHILD(wkr___communicator_server, worker)
+     %% ?CHILD(wrk___manifest_loader, worker)
     ].

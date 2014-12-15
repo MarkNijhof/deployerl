@@ -59,10 +59,10 @@ udp_process_packet({_, _, OwnNodeName}, State)
 
 udp_process_packet({register_client, Pid, Name, Roles}, State) ->
     lager:info("Broadcast received from client: ~p~n", [Name]),
-    case net_adm:ping(Name) of
-        pong ->
+    case net_kernel:connect_node(Name) of
+        true ->
             wkr___communicator_server:register_client(Pid, Name, Roles);
-        pang ->
+        false ->
             lager:error("New remote node ~p but failed to connect~n", [Name])
     end,
     State.

@@ -24,6 +24,7 @@ start_link() ->
 
 init([]) ->
     process_flag (trap_exit, true),
+    %% gproc:reg({p, g, client}, test),
     mod___collectd:clear_any_collectd_server_ip_addresses(),
     {ok, #state{}}.
 
@@ -54,6 +55,7 @@ process_connected_server(Pid, Name, IpAddress, State) ->
     erlang:monitor(process, Pid),
     mod___collectd:add_collectd_server_ip_address(IpAddress),
     wkr___connector_client:connected_to_server(),
+    %% gproc_dist:get_leader(),
     State#state{server_pid = Pid,
                 server_name = Name,
                 server_ip_address = IpAddress}.

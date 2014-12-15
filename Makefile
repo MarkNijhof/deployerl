@@ -2,11 +2,14 @@ PROJECT = deployerl
 
 ERLC_OPTS = +debug_info +'{parse_transform,lager_transform}'
 
-DEPS = lager jiffy exometer hackney
+DEPS = lager jiffy exometer hackney locks gproc
 
-dep_jiffy    = git https://github.com/davisp/jiffy master
-dep_exometer = git https://github.com/MarkNijhof/exometer master
-dep_hackney  = git https://github.com/benoitc/hackney master
+dep_jiffy      = git https://github.com/davisp/jiffy master
+dep_exometer   = git https://github.com/MarkNijhof/exometer master
+dep_hackney    = git https://github.com/benoitc/hackney master
+dep_gen_leader = git https://github.com/garret-smith/gen_leader_revival master
+dep_locks      = git https://github.com/uwiger/locks uw-leader-hanging
+dep_gproc      = git https://github.com/uwiger/gproc uw-locks_leader
 
 include erlang.mk
 

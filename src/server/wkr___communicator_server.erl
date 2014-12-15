@@ -26,13 +26,18 @@ register_client(Pid, Name, Roles) ->
 
 init([]) ->
     process_flag (trap_exit, true),
+    %% gproc:reg({p, g, server}, test),
     {ok, #state{}}.
 
 handle_info({register_client, Pid, Name, Roles}, State) ->
     {noreply, do_register_client(Pid, Name, Roles, State)};
 
 handle_info({'DOWN', _Ref, process, Pid, _Reason}, State) ->
-    {noreply, do_remove_client(Pid, State)}.
+    {noreply, do_remove_client(Pid, State)};
+
+handle_info({nodedown, Node}, State) ->
+    io:format(user, "NODE DOWN ~p~n", [Node]),
+    {noreply, State}.
 
 handle_call(not_implemented, _From, State) ->
     {reply, not_implemented, State}.
@@ -52,6 +57,8 @@ terminate(_Reason, _State) ->
 
 do_register_client(Pid, Name, Roles, State = #state{clients = Clients}) ->
     erlang:monitor(process, Pid),
+    monitor_node(Name, true),
+    %% gproc_dist:get_leader(),
     register_self_at_remote_node(Pid),
     State#state{clients = [{Pid, Name, Roles}|Clients]}.
 

@@ -77,6 +77,14 @@ parse_manifest(Body, State) ->
     Roles = maps:get(<<"roles">>, Body, []),
     diff_roles(Roles, State#state{ttl = Ttl}).
 
-diff_roles(Roles, State) ->
-    io:format(user, "ROLES: ~p~n~n", [Roles]),
-    State#state{roles = Roles}.
+diff_roles(Roles, State = #state{roles = Roles}) ->
+    io:format(user, "ROLES: No change~n", []),
+    State;
+
+diff_roles(NewRoles, State = #state{roles = OldRoles}) ->
+    AddedRoles = [Role || Role <- NewRoles, has_role(maps:get(<<"role">>, Role), OldRoles)],
+    State#state{roles = NewRoles}.
+
+has_role(Key, Roles) ->
+    FoundRoles = [Role || Role <- Roles, maps:get(<<"role">>, Role) =:= Key],
+    length(FoundRoles) > 0.

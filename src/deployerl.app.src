@@ -16,6 +16,8 @@
     crypto,
     public_key,
     ssl,
+    %% locks,
+    %% gproc,
     hackney
    ]},
   {mod, {deployerl_app, []}},
