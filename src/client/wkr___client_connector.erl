@@ -1,4 +1,4 @@
--module(wkr___connector_client).
+-module(wkr___client_connector).
 -behaviour(gen_server).
 
 -export([init/1, handle_info/2, handle_call/3, handle_cast/2, code_change/3, terminate/2]).
@@ -31,11 +31,13 @@ disconnected_from_server() ->
 %% --------------------------------------------------%%
 
 init([]) ->
-    {ok, #state{udp_port = mod___config:get_udp_port(),
-                roles = mod___config:get_roles()}, 10}.
+    {ok, do_init(#state{})}.
 
 handle_info(timeout, State = #state{connected_to_server = false}) ->
     {noreply, udp_broadcast(State), 5000};
+
+handle_info(start_role_managers, State) ->
+    {noreply, start_role_managers(State), 10};
 
 handle_info(disconnected_from_server, State) ->
     {noreply, State#state{connected_to_server = false}, 5000};
@@ -58,6 +60,14 @@ terminate(_Reason, _State) ->
 %% --------------------------------------------------%%
 %% PRIVATE
 %% --------------------------------------------------%%
+
+do_init(State) ->
+    self() ! start_role_managers,
+    State#state{udp_port = mod___config:get_udp_port()}.
+
+start_role_managers(State) ->
+    Roles = [{Role, sup___client_role_managers:get_role_manager_pid(Role)} || Role <- mod___config:get_roles()],
+    State#state{roles = Roles}.
 
 udp_broadcast(State = #state{connected_to_server = false,
                              udp_port = UdpPort,

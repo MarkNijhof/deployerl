@@ -10,7 +10,6 @@
 %% API
 %% --------------------------------------------------%%
 
--spec start_link() -> {ok, pid()}.
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
@@ -28,7 +27,7 @@ init([]) ->
 
 get_processes() ->
     [
-     ?CHILD(wkr___connector_server, worker),
-     ?CHILD(wkr___communicator_server, worker)
-     %% ?CHILD(wrk___manifest_loader, worker)
+     ?CHILD(sup___server_role_managers, supervisor),
+     ?CHILD(wkr___server_connector, worker),
+     ?CHILD(wkr___server_manifest_loader, worker)
     ].

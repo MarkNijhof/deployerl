@@ -28,6 +28,7 @@ init([]) ->
 
 get_processes() ->
     [
-     ?CHILD(wkr___connector_client, worker),
-     ?CHILD(wkr___communicator_client, worker)
+     ?CHILD(sup___client_role_managers, supervisor),
+     ?CHILD(wkr___client_communicator, worker),
+     ?CHILD(wkr___client_connector, worker)
     ].

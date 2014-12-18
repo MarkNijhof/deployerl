@@ -1,4 +1,4 @@
--module(wrk___manifest_loader).
+-module(wkr___server_manifest_loader).
 -behaviour(gen_server).
 
 -export([start_link/0]).
@@ -9,7 +9,6 @@
           method,
           type,
           url,
-          roles = [],
           ttl = 5000
          }).
 
@@ -58,33 +57,40 @@ parse_config(State) ->
 load_manifest(State = #state{url = undefined}) ->
     lager:error("No manifest url provided in the config~n", []),
     State;
-
 load_manifest(State = #state{method = tcp, url = Url}) ->
     case hackney:request(get, Url, [], <<>>, []) of
         {ok, _StatusCode, _RespHeaders, ClientRef} ->
             {ok, Body} = hackney:body(ClientRef),
-            parse_manifest(Body, State);
+            maybe_redirect(jiffy:decode(Body, [return_maps]), State);
         {error, _Reason} ->
             State
     end.
 
-parse_manifest(Body, State)
+maybe_redirect(Body, State)
   when is_binary(Body) ->
-    parse_manifest(jiffy:decode(Body, [return_maps]), State);
+    maybe_redirect(jiffy:decode(Body, [return_maps]), State);
+maybe_redirect(Body, State) ->
+    case maps:get(<<"redirect_to_url">>, Body, no_redirect_defined) of
+        no_redirect_defined ->
+            parse_manifest(Body, State);
+        NewManifestUrl ->
+            Method = list_to_atom(maps:get(<<"method">>, Body, "tcp")),
+            Type = list_to_atom(maps:get(<<"type">>, Body, "json")),
+            load_manifest(State#state{method = Method,
+                                      type = Type,
+                                      url = NewManifestUrl})
+    end.
 
 parse_manifest(Body, State) ->
     Ttl = maps:get(<<"ttl">>, Body, 5000),
     Roles = maps:get(<<"roles">>, Body, []),
-    diff_roles(Roles, State#state{ttl = Ttl}).
+    publish_roles(Roles),
+    State#state{ttl = Ttl}.
 
-diff_roles(Roles, State = #state{roles = Roles}) ->
-    io:format(user, "ROLES: No change~n", []),
-    State;
-
-diff_roles(NewRoles, State = #state{roles = OldRoles}) ->
-    AddedRoles = [Role || Role <- NewRoles, has_role(maps:get(<<"role">>, Role), OldRoles)],
-    State#state{roles = NewRoles}.
-
-has_role(Key, Roles) ->
-    FoundRoles = [Role || Role <- Roles, maps:get(<<"role">>, Role) =:= Key],
-    length(FoundRoles) > 0.
+publish_roles([]) ->
+    ok;
+publish_roles([Role | Roles]) ->
+    RoleName = binary_to_atom(maps:get(<<"role">>, Role), utf8),
+    Applications = maps:get(<<"applications">>, Role),
+    wkr___server_role_manager:register_applications(RoleName, Applications),
+    publish_roles(Roles).

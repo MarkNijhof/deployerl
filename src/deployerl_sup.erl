@@ -34,14 +34,12 @@ init([]) ->
 get_processes_for_server_mode() ->
     [
      ?CHILD(sup___server, supervisor),
-     get_processes_for_deployer()
+     ?CHILD(sup___client, supervisor),
+     ?CHILD(sup___deployer, supervisor)
     ].
 
 get_processes_for_client_mode() ->
     [
      ?CHILD(sup___client, supervisor),
-     get_processes_for_deployer()
+     ?CHILD(sup___deployer, supervisor)
     ].
-
-get_processes_for_deployer() ->
-    ?CHILD(sup___deployer, supervisor).

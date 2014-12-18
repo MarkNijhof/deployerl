@@ -24,7 +24,7 @@ run_server:
 	DEPLOYERL_MODE=server DEPLOYERL_ROLES=role_a ./run.sh
 
 run_client:
-	DEPLOYERL_MODE=client DEPLOYERL_ROLES=role_b,role_c ./run.sh
+	DEPLOYERL_MODE=client DEPLOYERL_ROLES=role_b ./run.sh
 
 start:
 	./start.sh
@@ -41,11 +41,11 @@ CONTAINER_NAME=deployerl
 docker.build:
 	cd docker && docker build --rm -t ${CONTAINER_NAME} .
 
-docker.shell.server:
+docker.server:
 	cd docker && docker run --rm -ti -e DEPLOYERL_MODE=server -e DEPLOYERL_ROLES=role_a -h "deployerl_server_`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`" -v $(shell pwd):/root/src ${CONTAINER_NAME} /sbin/my_init -- bash -l
 
-docker.shell.client:
-	cd docker && docker run --rm -ti -e DEPLOYERL_MODE=client -e DEPLOYERL_ROLES=role_b,role_c -h "deployerl_client_`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`" -v $(shell pwd):/root/src ${CONTAINER_NAME} /sbin/my_init -- bash -l
+docker.client:
+	cd docker && docker run --rm -ti -e DEPLOYERL_MODE=client -e DEPLOYERL_ROLES=role_b -h "deployerl_client_`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`" -v $(shell pwd):/root/src ${CONTAINER_NAME} /sbin/my_init -- bash -l
 
 docker.clean: docker.clean.containers docker.clean.none-images
 	@echo "Clean all"

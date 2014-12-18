@@ -1,4 +1,4 @@
--module(wkr___connector_server).
+-module(wkr___server_connector).
 -behaviour(gen_server).
 
 -export([start_link/0]).
@@ -61,8 +61,17 @@ udp_process_packet({register_client, Pid, Name, Roles}, State) ->
     lager:info("Broadcast received from client: ~p~n", [Name]),
     case net_kernel:connect_node(Name) of
         true ->
-            wkr___communicator_server:register_client(Pid, Name, Roles);
+            register_self_at_remote_node(Pid),
+            wkr___server_role_manager:register_client(Name, Roles);
         false ->
             lager:error("New remote node ~p but failed to connect~n", [Name])
     end,
     State.
+
+register_self_at_remote_node(Pid) ->
+    Pid ! {register_server, self(), node(), get_ip_from_node_name()},
+    ok.
+
+get_ip_from_node_name() ->
+    [_, Ip] = binary:split(atom_to_binary(node(), utf8), <<"@">>, [global]),
+    Ip.

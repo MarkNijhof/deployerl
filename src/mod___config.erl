@@ -1,5 +1,6 @@
 -module(mod___config).
 
+-export([get_cookie/0]).
 -export([get_mode/0]).
 -export([get_roles/0]).
 -export([get_udp_port/0]).
@@ -8,6 +9,9 @@
 %% --------------------------------------------------%%
 %% API
 %% --------------------------------------------------%%
+
+get_cookie() ->
+    get_config(cookie, 's0m3aw3s0m3c00kie').
 
 get_mode() ->
     get_config(mode, client, atom).
@@ -28,6 +32,16 @@ get_manifest() ->
 
 get_env_name(Key) ->
     "DEPLOYERL_" ++ string:to_upper(atom_to_list(Key)).
+
+
+get_config(Key, Default) ->
+    case application:get_env(deployerl, Key) of
+        {ok, Value} ->
+            Value;
+        undefined ->
+            Default
+    end.
+
 
 get_config(Key, Default, term) ->
     get_config(Key, Default);
@@ -59,12 +73,4 @@ get_config(Key, Default, int) ->
             get_config(Key, Default);
         Value ->
             list_to_integer(Value)
-    end.
-
-get_config(Key, Default) ->
-    case application:get_env(deployerl, Key) of
-        {ok, Value} ->
-            Value;
-        undefined ->
-            Default
     end.

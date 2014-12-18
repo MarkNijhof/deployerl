@@ -1,4 +1,4 @@
--module(wkr___communicator_client).
+-module(wkr___client_communicator).
 -behaviour(gen_server).
 
 -export([init/1, handle_info/2, handle_call/3, handle_cast/2, code_change/3, terminate/2]).
@@ -24,7 +24,6 @@ start_link() ->
 
 init([]) ->
     process_flag (trap_exit, true),
-    %% gproc:reg({p, g, client}, test),
     mod___collectd:clear_any_collectd_server_ip_addresses(),
     {ok, #state{}}.
 
@@ -54,8 +53,7 @@ process_connected_server(Pid, Name, IpAddress, State) ->
     lager:info("Deployerl connected to server: ~p~n", [Name]),
     erlang:monitor(process, Pid),
     mod___collectd:add_collectd_server_ip_address(IpAddress),
-    wkr___connector_client:connected_to_server(),
-    %% gproc_dist:get_leader(),
+    wkr___client_connector:connected_to_server(),
     State#state{server_pid = Pid,
                 server_name = Name,
                 server_ip_address = IpAddress}.
@@ -64,5 +62,5 @@ process_disconnected_server(State = #state{server_name = Name,
                                            server_ip_address = IpAddress}) ->
     lager:info("Deployerl disconnected from server: ~p~n", [Name]),
     mod___collectd:remove_collectd_server_ip_address(IpAddress),
-    wkr___connector_client:disconnected_from_server(),
+    wkr___client_connector:disconnected_from_server(),
     State#state{server_pid = undefined}.
