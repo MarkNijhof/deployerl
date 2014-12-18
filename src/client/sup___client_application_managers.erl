@@ -15,11 +15,11 @@
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
-get_application_manager_pid(Role) ->
-    ClientRole = list_to_atom(atom_to_list(?MODULE) ++ "_" ++ atom_to_list(Role)),
-    case whereis(ClientRole) of
+get_application_manager_pid(Application) ->
+    ClientApplication = list_to_atom(atom_to_list(?MODULE) ++ "_" ++ atom_to_list(Application)),
+    case whereis(ClientApplication) of
         undefined ->
-            {ok, Pid} = supervisor:start_child(?MODULE, [ClientRole]),
+            {ok, Pid} = supervisor:start_child(?MODULE, [ClientApplication]),
             Pid;
         Pid ->
             Pid

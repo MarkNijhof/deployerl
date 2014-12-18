@@ -10,6 +10,7 @@
 -record(state, {
           role,
           applications = [],
+          applications_diff = [],
           clients = []
          }).
 
@@ -67,21 +68,48 @@ terminate(_Reason, _State) ->
 %% --------------------------------------------------%%
 
 
-do_register_client(Name, Role, RolePid, State = #state{clients = Clients,
-                                                       applications = Applications}) ->
+do_register_client(Name, Role, RolePid, State = #state{clients = Clients}) ->
     erlang:monitor(process, RolePid),
-    update_client(RolePid, Applications),
     State#state{clients = [{RolePid, Role, Name}|Clients]}.
 
 do_remove_client(Pid, State = #state{clients = Clients}) ->
     State#state{clients = lists:keydelete(Pid, 1, Clients)}.
 
 do_register_applications(Applications, State = #state{applications = Applications}) ->
-    State;
+    Diff = [{unchanged, Application} || Application <- Applications],
+    update_client(State#state{applications_diff = Diff});
 
-do_register_applications(Applications, State = #state{clients = Clients}) ->
-    [update_client(RolePid, Applications) || {RolePid, _, _} <- Clients],
-    State#state{applications = Applications}.
+do_register_applications(Applications, State = #state{applications = []}) ->
+    Diff = [{new, Application} || Application <- Applications],
+    update_client(State#state{applications_diff = Diff});
 
-update_client(RolePid, Applications) ->
-    RolePid ! {register_applications, Applications}.
+do_register_applications(Applications, State = #state{applications = PrevApplications}) ->
+    Diff = [diff_application(Application, PrevApplications) || Application <- Applications],
+    Removed = [{removed, Application} || Application <- Applications, is_not_member_of(Application, PrevApplications)],
+    update_client(State#state{applications_diff = [Diff|Removed]}).
+
+is_not_member_of(Application, Applications) ->
+    Key = maps:get(<<"application">>, Application),
+    Found = [App || App <- Applications, maps:get(<<"application">>, Application) =:= Key],
+    length(Found) =:= 0.
+
+diff_application(Application, []) ->
+    {new, Application};
+diff_application(Application, [PA|PrevApplications]) ->
+    AppName = maps:get(<<"application">>, Application),
+    PrevAppName = maps:get(<<"application">>, PA),
+    case AppName of
+        PrevAppName ->
+            if
+                Application =:= PA ->
+                    {unchanged, Application};
+                true ->
+                    {changed, Application}
+            end;
+        _ ->
+            diff_application(Application, PrevApplications)
+    end.
+
+update_client(State) ->
+    State.
+    %% RolePid ! {register_applications, Applications}.
